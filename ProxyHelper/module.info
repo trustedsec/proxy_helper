@@ -1,0 +1,6 @@
+{
+    "author": "@_Kc57",
+    "description": "Forwards traffic to a proxy such as Burp Suite",
+    "title": "Proxy Helper",
+    "version": "1.0"
+}

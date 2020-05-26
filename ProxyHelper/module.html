@@ -1,0 +1,148 @@
+<div>
+
+	<div class="panel panel-default" ng-controller="ProxyHelperAboutController">
+		<div class="panel-heading pointer" data-toggle="collapse" data-target="#About">
+			<h4 class="panel-title pull-left">{{title}}</h4>
+			<span class="pull-right">{{version}}</span>
+			<div class="clearfix"></div>
+		</div>
+	    <div id="About" class="panel-collapse collapse">
+	    	<div class="panel-body">
+	        	Author: <a href="https://twitter.com/_kc57">@_Kc57</a><br><br>
+	            For help using the module, check out the <a href="https://www.trustedsec.com/blog/introducing-proxy-helper-a-new-wifi-pineapple-module/">blog post</a> or find me on the <a href="https://discord.gg/trustedsec">TrustedSec Discord</a>
+	        </div>
+	    </div>
+	</div>
+
+	<div class="row">
+	    <div class="col-md-4">
+	        <div class="panel panel-default" ng-controller="ProxyHelperControlsController">
+	            <div class="panel-heading">
+								<h3 class="panel-title">Controls</h3>
+	            </div>
+							<div class="panel-body">
+								<table style="width:100%">
+									<tr ng-show="true">
+										<td style="padding-bottom: .5em;" class="text-muted">Proxy</td>
+										<td style="text-align:right;padding-bottom: .5em;"><button type="button" style="width: 90px;" class="btn btn-{{statusLabel}} btn-xs" ng-click="toggleProxy();">{{status}}</button></td>
+									</tr>
+									<tr ng-show="true">
+										<td style="padding-bottom: .5em;" class="text-muted">Manualy Backup FW Rules</td>
+										<td style="text-align:right;padding-bottom: .5em;"><button type="button" style="width: 90px;" class="btn btn-success btn-xs" ng-disabled="disabled" ng-click="backupRules(false);">Backup</button></td>
+									</tr>
+								</table>
+								<p class="well well-sm alert-success" ng-show="toggleSuccess">Successfully configured proxy!</p>
+								<p class="well well-sm alert-danger" ng-show="toggleFailure">Failed to configured proxy: {{error}}</p>
+							</div>
+	        </div>
+	    </div>
+	</div>
+
+
+	<div class="row">
+		<div class="col-md-7">
+			<div class="panel panel-default" ng-controller="ProxyHelperSettingsController">
+				<div class="panel-heading">
+					<h3 class="panel-title">Proxy Settings</h3>
+				</div>
+				<div class="panel-body">
+					<form class="form-horizontal">
+						<div class="form-group">
+							<label class="col-sm-2 control-label">Proxy IP</label>
+							<div class="col-sm-7">
+								<input type="text" class="form-control" ng-disabled="disabled" ng-model="proxyIP" placeholder="172.16.42.42" ng-change="updateIP();">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-2 control-label">Proxy Port</label>
+							<div class="col-sm-7">
+								<input type="text" class="form-control" ng-disabled="disabled" ng-model="proxyPort" placeholder="8080" ng-change="updatePort();">
+							</div>
+						</div>
+						<!--<div class="form-group">
+							<div class="col-sm-7 col-md-offset-2">
+								<button class="btn btn-success" ng-click="saveSettings();">Save</button>
+							</div>
+						</div>
+					</form> -->
+
+					<!--<p class="well well-sm alert-success" ng-show="true">Saved Settings!</p> -->
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+			<div class="panel panel-default" ng-controller="ProxyHelperBackupController">
+				<div class="panel-heading">
+					<h3 class="panel-title" title="Backups are stored at at /pineapple/modules/ProxyHelper/backups">Backups
+					<button type="button" ng-click="getBackups();" class="close pull-right"aria-label="Refresh"><span aria-hidden="true">&#8635;</span></button>
+					</h3>
+				</div>
+				<div class="table-responsive table-dropdown">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>File</th>
+								<th>Action</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="file in backups">
+								<td>
+									{{ file }}
+								</td>
+								<td>
+									<button type="button" class="btn btn-info btn-xs btn-fixed-length" data-toggle="modal" data-target="#backupModal" ng-click="viewBackup(file);">View</button>
+									<button type="button" class="btn btn-success btn-xs btn-fixed-length" ng-disabled="disabled" data-toggle="modal" data-target="#restoreModal" ng-click="restoreBackup(file);">Restore</button>
+									<button type="button" class="btn btn-danger btn-xs btn-fixed-length" ng-click="deleteBackup(file);">Remove</button>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<p class="well well-sm alert-success" ng-show="removedBackup">Successfully removed backup</p>
+
+				<div class="modal fade" id="backupModal" tabindex="-1" role="dialog" aria-labelledby="backupModalLabel">
+					<div class="modal-dialog modal-lg" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+								<h4 class="modal-title" id="backupModalLabel">View Backup - {{backupName}}</h4>
+							</div>
+							<div class="modal-body">
+								<pre class="scrollable-pre log-pre">{{backupContents}}</pre>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Modal -->
+				<div class="modal fade" id="restoreModal" tabindex="-1" role="dialog" aria-labelledby="restoreModalLabel" aria-hidden="true">
+				  <div class="modal-dialog" role="document">
+				    <div class="modal-content">
+				      <div class="modal-header">
+				        <h5 class="modal-title" id="restoreTitle">Restore Status:</h5>
+				        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				      </div>
+				      <div class="modal-body">
+				        <p>{{restoreMessage}}</p>
+				      </div>
+				      <div class="modal-footer">
+				        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+				      </div>
+				    </div>
+				  </div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+
+</div>
