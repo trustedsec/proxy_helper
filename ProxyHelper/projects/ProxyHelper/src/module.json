@@ -1,0 +1,10 @@
+{
+    "name": "ProxyHelper",
+    "title": "Proxy Helper",
+    "description": "Proxy Helper is a WiFi Pineapple module that will automatically configure the Pineapple for IP forwarding and set up the necessary rules. This allows the user to easily forward web traffic to a proxy such as Burp Suite for inspection.",
+    "version": "1.0",
+    "author": "trustedsec",
+    "firmware_required": "1.0.0",
+    "devices": ["wifipineapplemk7"]
+}
+
