@@ -1,9 +1,6 @@
 <mat-grid-list cols="1" class="mat-typography">
   <mat-card class="title-card">
-    <mat-card-title>Title</mat-card-title>
-    <mat-card-content>
-      card content
-    </mat-card-content>
+    <mat-card-title>{{title}} - Version {{version}}</mat-card-title>
   </mat-card>
 
   <mat-card class="control-card">
@@ -11,7 +8,7 @@
     <mat-card-content class="control-card-content">
       <div class="card-row">
         <p class="label">Proxy</p>
-        <button mat-raised-button class="control-button" color={{statusColor}}>{{status}}</button>
+        <button mat-raised-button class="control-button" (click)="toggleProxy()" color={{statusColor}}>{{status}}</button>
       </div>
       <div class="card-row">
         <p class="label">Manually Backup FW Rules</p>
@@ -27,13 +24,13 @@
       <div class="card-row">
         <mat-form-field appearance="fill">
           <mat-label>Proxy IP</mat-label>
-          <input matInput placeholder="172.16.42.42" value={{proxyIp}}>
+          <input matInput placeholder="172.16.42.42" disabled={{disabled}} [(ngModel)]="proxyIp" name="proxyIP">
         </mat-form-field>
       </div>
       <div class="card-row">
         <mat-form-field appearance="fill">
           <mat-label>Proxy Port</mat-label>
-          <input matInput placeholder="8080" value={{proxyPort}}>
+          <input matInput placeholder="8080" disabled={{disabled}} [(ngModel)]="proxyPort" name="proxyPort">
         </mat-form-field>
       </div>
       </form>

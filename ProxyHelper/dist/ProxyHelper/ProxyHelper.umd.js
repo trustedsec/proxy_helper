@@ -449,7 +449,6 @@
     var ProxyHelperComponent = /** @class */ (function () {
         function ProxyHelperComponent(API) {
             this.API = API;
-            this.apiResponse = "Press the button above to get the response.";
             this.title = "";
             this.version = "";
             this.statusColor = "warn";
@@ -459,26 +458,214 @@
             this.error = "";
             this.disabled = false;
             this.proxyIp = "172.16.42.42";
-            this.proxyPort = 8080;
+            this.proxyPort = "8080";
+            this.running = false;
+            this.isFetchingBackups = false;
+            this.isBackingUp = false;
+            this.backupName = "";
+            this.backupContents = "";
+            this.restoreMessage = "";
+            this.backups = [];
         }
-        ProxyHelperComponent.prototype.doAPIAction = function () {
+        ProxyHelperComponent.prototype.ngOnInit = function () {
+            this.getAboutInfo();
+            this.getRunningStatus();
+        };
+        ProxyHelperComponent.prototype.getAboutInfo = function () {
             var _this = this;
             this.API.request({
                 module: "ProxyHelper",
                 action: "aboutInfo",
             }, function (response) {
-                _this.apiResponse = response;
+                console.log(response);
+                _this.title = response.title;
+                _this.version = response.version;
             });
         };
-        ProxyHelperComponent.prototype.ngOnInit = function () { };
+        ProxyHelperComponent.prototype.getRunningStatus = function () {
+            var _this = this;
+            this.API.request({
+                module: "ProxyHelper",
+                action: "getRunningStatus",
+            }, function (response) {
+                console.log(response);
+                _this.running = response.isRunning;
+                _this.proxyIp = response.proxyIp || _this.proxyIp;
+                _this.proxyPort = response.proxyPort || _this.proxyPort;
+                if (response.isRunning) {
+                    _this.status = "Running";
+                    _this.statusColor = "accent";
+                    _this.toggleSuccess = false;
+                    _this.toggleFailure = false;
+                    _this.error = "";
+                }
+                else {
+                    _this.status = "Stopped";
+                    _this.statusColor = "warn";
+                    _this.toggleSuccess = false;
+                    _this.toggleFailure = false;
+                    _this.error = "";
+                }
+            });
+        };
+        ProxyHelperComponent.prototype.setRunningStatus = function (running) {
+            this.running = running;
+            this.API.request({
+                module: "ProxyHelper",
+                action: "setRunningStatus",
+                isRunning: running,
+                proxyIp: this.proxyIp,
+                proxyPort: this.proxyPort,
+            }, function (response) {
+                console.log(response);
+            });
+        };
+        ProxyHelperComponent.prototype.backupRules = function (bIsAutoBackup) {
+            var _this = this;
+            this.isBackingUp = true;
+            this.API.request({
+                module: "ProxyHelper",
+                action: "backupRules",
+                bIsAutoBackup: bIsAutoBackup
+            }, function (response) {
+                _this.isBackingUp = false;
+                console.log(response);
+            });
+        };
+        ProxyHelperComponent.prototype.enableProxy = function () {
+            var _this = this;
+            this.error = "";
+            this.toggleFailure = false;
+            this.API.request({
+                module: "ProxyHelper",
+                action: "backupRules",
+                bIsAutoBackup: true
+            }, function (response) {
+                console.log(response);
+                _this.API.request({
+                    module: "ProxyHelper",
+                    action: "clearRules"
+                }, function (response) {
+                    console.log(response);
+                    _this.API.request({
+                        module: "ProxyHelper",
+                        action: "createProxyRules",
+                        dIP: _this.proxyIp,
+                        dPort: parseInt(_this.proxyPort)
+                    }, function (response) {
+                        console.log(response);
+                        if (response.success) {
+                            _this.setRunningStatus(true);
+                            console.log('Started proxy on IP: ' + _this.proxyIp + ' and port: ' + _this.proxyPort);
+                            _this.status = "Started";
+                            _this.statusColor = "primary";
+                            _this.toggleSuccess = true;
+                            _this.toggleFailure = false;
+                            _this.disabled = true;
+                        }
+                        else {
+                            console.log('Failed to start proxy');
+                            _this.status = "Stopped";
+                            _this.statusColor = "warn";
+                            _this.toggleSuccess = false;
+                            _this.toggleFailure = true;
+                            _this.disabled = false;
+                        }
+                    });
+                });
+            });
+        };
+        ProxyHelperComponent.prototype.disableProxy = function () {
+            var _this = this;
+            this.API.request({
+                module: "ProxyHelper",
+                action: "clearRules"
+            }, function (response) {
+                console.log(response);
+                console.log('Stopping proxy');
+                _this.status = "Stopped";
+                _this.statusColor = "warn";
+                _this.toggleSuccess = false;
+                _this.toggleFailure = false;
+                _this.API.request({
+                    module: "ProxyHelper",
+                    action: "restoreBackup",
+                    filename: "iptables_tmp"
+                }, function (response) {
+                    console.log(response);
+                });
+            });
+        };
+        ProxyHelperComponent.prototype.toggleProxy = function () {
+            if (this.status == "Stopped") {
+                this.enableProxy();
+            }
+            else {
+                this.disableProxy();
+            }
+        };
+        ProxyHelperComponent.prototype.viewBackup = function (filename) {
+            var _this = this;
+            this.API.request({
+                module: "ProxyHelper",
+                action: "viewBackup",
+                filename: filename
+            }, function (response) {
+                console.log(response);
+                _this.backupContents = response.output;
+                _this.backupName = response.name;
+            });
+        };
+        ProxyHelperComponent.prototype.restoreBackup = function (filename) {
+            var _this = this;
+            this.API.request({
+                module: "ProxyHelper",
+                action: "restoreBackup",
+                filename: filename
+            }, function (response) {
+                console.log(response);
+                if (response.success) {
+                    _this.restoreMessage = "Backup restored";
+                }
+                else {
+                    _this.restoreMessage = "Failed to restore backup";
+                }
+            });
+        };
+        ProxyHelperComponent.prototype.getBackups = function () {
+            var _this = this;
+            this.API.request({
+                module: "ProxyHelper",
+                action: "getBackups"
+            }, function (response) {
+                console.log(response);
+                _this.backups = response.backups;
+            });
+        };
+        ProxyHelperComponent.prototype.deleteBackup = function (filename) {
+            var _this = this;
+            this.API.request({
+                module: "ProxyHelper",
+                action: "deleteBackup",
+                filename: filename
+            }, function (response) {
+                console.log(response);
+                if (response.success) {
+                    _this.restoreMessage = "Backup deleted";
+                }
+                else {
+                    _this.restoreMessage = "Failed to delete backup";
+                }
+            });
+        };
         ProxyHelperComponent.ctorParameters = function () { return [
             { type: ApiService }
         ]; };
         ProxyHelperComponent = __decorate([
             core.Component({
                 selector: "lib-ProxyHelper",
-                template: "<mat-grid-list cols=\"1\" class=\"mat-typography\">\n  <mat-card class=\"title-card\">\n    <mat-card-title>Title</mat-card-title>\n    <mat-card-content>\n      card content\n    </mat-card-content>\n  </mat-card>\n\n  <mat-card class=\"control-card\">\n    <mat-card-title>Controls</mat-card-title>\n    <mat-card-content class=\"control-card-content\">\n      <div class=\"card-row\">\n        <p class=\"label\">Proxy</p>\n        <button mat-raised-button class=\"control-button\" color={{statusColor}}>{{status}}</button>\n      </div>\n      <div class=\"card-row\">\n        <p class=\"label\">Manually Backup FW Rules</p>\n        <button mat-raised-button class=\"control-button\">Backup</button>\n      </div>\n    </mat-card-content>\n  </mat-card>\n\n  <mat-card class=\"settings-card\">\n    <mat-card-title>Proxy Settings</mat-card-title>\n    <mat-card-content>\n      <form>\n      <div class=\"card-row\">\n        <mat-form-field appearance=\"fill\">\n          <mat-label>Proxy IP</mat-label>\n          <input matInput placeholder=\"172.16.42.42\" value={{proxyIp}}>\n        </mat-form-field>\n      </div>\n      <div class=\"card-row\">\n        <mat-form-field appearance=\"fill\">\n          <mat-label>Proxy Port</mat-label>\n          <input matInput placeholder=\"8080\" value={{proxyPort}}>\n        </mat-form-field>\n      </div>\n      </form>\n    </mat-card-content>\n  </mat-card>\n\n  <mat-card>\n    <mat-card-title>Backups</mat-card-title>\n    <mat-card-content>\n      card content\n    </mat-card-content>\n  </mat-card>\n</mat-grid-list>",
-                styles: [".mat-card{margin-bottom:24px}.control-card,.settings-card{max-width:600px}.card-row{display:flex;flex-direction:row;align-items:center;margin-bottom:12px}.control-button{width:120px}.label{margin-right:auto}button.mat-raised-button span.mat-button-wrapper{cursor:pointer!important}"]
+                template: "<mat-grid-list cols=\"1\" class=\"mat-typography\">\n  <mat-card class=\"title-card\">\n    <mat-card-title>{{title}} - Version {{version}}</mat-card-title>\n  </mat-card>\n\n  <mat-card class=\"control-card\">\n    <mat-card-title>Controls</mat-card-title>\n    <mat-card-content class=\"control-card-content\">\n      <div class=\"card-row\">\n        <p class=\"label\">Proxy</p>\n        <button mat-raised-button class=\"control-button\" (click)=\"toggleProxy()\" color={{statusColor}}>{{status}}</button>\n      </div>\n      <div class=\"card-row\">\n        <p class=\"label\">Manually Backup FW Rules</p>\n        <button mat-raised-button class=\"control-button\">Backup</button>\n      </div>\n    </mat-card-content>\n  </mat-card>\n\n  <mat-card class=\"settings-card\">\n    <mat-card-title>Proxy Settings</mat-card-title>\n    <mat-card-content>\n      <form>\n      <div class=\"card-row\">\n        <mat-form-field appearance=\"fill\">\n          <mat-label>Proxy IP</mat-label>\n          <input matInput placeholder=\"172.16.42.42\" disabled={{disabled}} [(ngModel)]=\"proxyIp\" name=\"proxyIP\">\n        </mat-form-field>\n      </div>\n      <div class=\"card-row\">\n        <mat-form-field appearance=\"fill\">\n          <mat-label>Proxy Port</mat-label>\n          <input matInput placeholder=\"8080\" disabled={{disabled}} [(ngModel)]=\"proxyPort\" name=\"proxyPort\">\n        </mat-form-field>\n      </div>\n      </form>\n    </mat-card-content>\n  </mat-card>\n\n  <mat-card>\n    <mat-card-title>Backups</mat-card-title>\n    <mat-card-content>\n      <table>\n        <ng-container cdkColumnDef=\"file\">\n          <th cdk-header-cell *cdkHeaderCellDef>File</th>\n          <td cdk-cell *cdkCellDef=\"let element\"> {{element.file}} </td>\n        </ng-container>\n        <ng-container cdkColumnDef=\"action\">\n          <th cdk-header-cell *cdkHeaderCellDef>Action</th>\n          <td cdk-cell *cdkCellDef>\n            <button mat-raised-button class=\"control-button\" color={{statusColor}}>{{status}}</button>\n            <button mat-raised-button class=\"control-button\" color={{statusColor}}>{{status}}</button>\n            <button mat-raised-button class=\"control-button\" color={{statusColor}}>{{status}}</button>\n          </td>\n        </ng-container>\n      </table>\n    </mat-card-content>\n  </mat-card>\n</mat-grid-list>",
+                styles: [".mat-card{margin-bottom:24px}.control-card,.settings-card{max-width:600px}.card-row{display:flex;flex-direction:row;align-items:center;margin-bottom:12px}.control-button{width:120px}.label{margin-right:auto}"]
             })
         ], ProxyHelperComponent);
         return ProxyHelperComponent;

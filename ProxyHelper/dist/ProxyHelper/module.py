@@ -18,7 +18,7 @@ statusFile = "/pineapple/modules/ProxyHelper/module.status"
 def aboutInfo(request: Request): 
     f = open("/pineapple/modules/ProxyHelper/module.json")
     data = json.load(f)
-    return json.dumps({"title": data["title"], "version": data["version"]})
+    return {"title": data["title"], "version": data["version"]}
 
 @module.handles_action("clearRules")
 def clearRules(request: Request):
@@ -28,25 +28,25 @@ def clearRules(request: Request):
     # the code could be updated to parse iptables output and remove only what we added    
     os.system("iptables -t nat -F PREROUTING")
     os.system("iptables -t nat -F POSTROUTING")
-    return json.dumps({"success": True, "call": "clearRules()"})
+    return {"success": True, "call": "clearRules()"}
 
 @module.handles_action("createProxyRules")
 def createProxyRules(request: Request):
-    if re.search(r'((^\s*((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\s*$)|(^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$))', request.dIP) == "":
-        return json.dumps({"success": False, "call": "createPoxyRules()", "error": "The IP address is invalid"})
+    if request.dIP == "" or re.search(r'((^\s*((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\s*$)|(^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$))', request.dIP) == "":
+        return {"success": False, "call": "createPoxyRules()", "error": "The IP address is invalid"}
     
     if not isinstance(request.dPort, int):
-        return json.dumps({"success": False, "call": "createPoxyRules()", "error": "The port is invalid (not an integer)"})
+        return {"success": False, "call": "createPoxyRules()", "error": "The port is invalid (not an integer)"}
 
-    if request.dbPort <= 0 or request.dbPort >65535:
-        return json.dumps({"success": False, "call": "createPoxyRules()", "error": "The port is invalid (invalid range)"})
+    if request.dPort <= 0 or request.dPort >65535:
+        return {"success": False, "call": "createPoxyRules()", "error": "The port is invalid (invalid range)"}
     
     os.system("echo '1' > /proc/sys/net/ipv4/ip_forward")
-    destination = request.dIP + ":" + request.dPort
+    destination = f'{request.dIP}:{request.dPort}'
     os.system("iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination " + destination)
     os.system("iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination " + destination)
     os.system("iptables -t nat -A POSTROUTING -j MASQUERADE")
-    return json.dumps({"success": True, "call": "createProxyRules()", "ip": request.dIP, "port": request.dPort, "destination": destination})
+    return {"success": True, "call": "createProxyRules()", "ip": request.dIP, "port": request.dPort, "destination": destination}
 
 @module.handles_action("backupRules")
 def backupRules(request: Request):
@@ -59,42 +59,39 @@ def backupRules(request: Request):
 
     os.system("iptables-save > " + filename)
 
-    return json.dumps({"success": True, "call": "backupRules()", "content": "iptables-save", "filename": filename})
+    return {"success": True, "call": "backupRules()", "content": "iptables-save", "filename": filename}
 
 @module.handles_action("viewBackup")
 def viewBackup(request: Request):
     filename = request.filename
     if filename is None or filename == "":
-        return json.dumps({"success": False, "call": "viewBackup()", "error": "No filename specified"})
+        return {"success": False, "call": "viewBackup()", "error": "No filename specified"}
 
     filePath = "/pineapple/modules/ProxyHelper/backups/" + filename
 
     if not os.path.isfile(filePath):
-        return json.dumps({"success": False, "call": "viewBackup()", "error": "No file found"})
+        return {"success": False, "call": "viewBackup()", "error": "No file found"}
 
     if not os.path.getsize(filePath) == 0:
-        return json.dumps({"success": False, "call": "viewBackup()", "error": "File is empty"})
+        return {"success": False, "call": "viewBackup()", "error": "File is empty"}
     
     with open(filePath) as f:
-        return json.dumps({"success": True, "call": "viewBackup()", "file": filename, "output": f.read()})
+        return {"success": True, "call": "viewBackup()", "file": filename, "output": f}
 
 @module.handles_action("restoreBackup")
 def restoreBackup(request: Request):
     filename = request.filename
     if filename is None or filename == "":
-        return json.dumps({"success": False, "call": "restoreBackup()", "error": "No filename specified"})
+        return {"success": False, "call": "restoreBackup()", "error": "No filename specified"}
 
     filePath = "/pineapple/modules/ProxyHelper/backups/" + filename
 
     if not os.path.isfile(filePath):
-        return json.dumps({"success": False, "call": "restoreBackup()", "error": "No file found"})
-
-    if not os.path.getsize(filePath) == 0:
-        return json.dumps({"success": False, "call": "restoreBackup()", "error": "File is empty"})
+        return {"success": False, "call": "restoreBackup()", "error": "No file found"}
     
     with open(filePath) as f:
         os.system("iptables-restore < " + filePath)
-        return json.dumps({"success": True, "call": "restoreBackup()", "file": filename, "output": f.read()})
+        return {"success": True, "call": "restoreBackup()", "file": filename, "output": f}
 
 @module.handles_action("getBackups")
 def getBackups():
@@ -106,17 +103,17 @@ def getBackups():
         if not os.path.isfile(backup) and not os.path.getsize(backup) == 0 and backup != tmpFileName:
             with open(backup, "r") as f:
                 backups.append(f)
-    return json.dumps({"success": True, "call": "getBackups()", "backups": backups})
+    return {"success": True, "call": "getBackups()", "backups": backups}
 
 @module.handles_action("deleteBackup")
 def deleteBackup(request: Request):
     filePath = "/pineapple/modules/ProxyHelper/backups/" + request.filename
 
     if not os.path.isfile(filePath):
-        return json.dumps({"success": False, "call": "restoreBackup()", "error": "No file found"})
+        return {"success": False, "call": "restoreBackup()", "error": "No file found"}
 
     os.system("rm -rf " + filename)
-    return json.dumps({"success": True, "call": "deleteBackup()", "file": filename})
+    return {"success": True, "call": "deleteBackup()", "file": filename}
 
 @module.handles_action("setRunningStatus")
 def setRunningStatus(request: Request):
@@ -126,12 +123,11 @@ def setRunningStatus(request: Request):
         "proxyPort": request.proxyPort,
     }
 
-    jsonStatus = json.dumps(status)
     with open(statusFile, "w+") as f:
-        f.write(jsonStatus)
+        f.write(json.dumps(status))
         f.close()
     
-    return json.dumps({"success": True, "call": "setRunningStatus()", "json": jsonStatus})
+    return {"success": True, "call": "setRunningStatus()", "json": status}
 
 @module.handles_action("getRunningStatus")
 def getRunningStatus(request: Request):
@@ -139,13 +135,13 @@ def getRunningStatus(request: Request):
     proxyIp = ""
     proxyPort = ""
 
-    if os.path.isfile(statusFile):
+    if os.path.isfile(statusFile) and os.path.getsize(statusFile) > 0:
         f = open(statusFile, "r")
-        status = json.load(f.read())
+        status = json.load(f)
         isRunning = status["isRunning"]
         proxyIp = status["proxyIp"]
         proxyPort= status["proxyPort"]
-    json.dumps({"success": True, "call": "getRunningStatus()", "isRunning": isRunning, "proxyIp": proxyIp, "proxyPort": proxyPort})
+    return {"success": True, "call": "getRunningStatus()", "isRunning": isRunning, "proxyIp": proxyIp, "proxyPort": proxyPort}
  
 if __name__ == "__main__": 
     module.start()

@@ -9,11 +9,11 @@ import { ApiService } from "../services/api.service";
 export class ProxyHelperComponent implements OnInit {
   constructor(private API: ApiService) {}
 
-  title = "";
-  version = "";
+  public title: string = "";
+  public version = "";
 
   statusColor = "warn";
-  status = "Stopped"
+  status = "Stopped";
   toggleSuccess = false;
   toggleFailure = false;
   error = "";
@@ -21,7 +21,7 @@ export class ProxyHelperComponent implements OnInit {
 
 
   proxyIp = "172.16.42.42";
-  proxyPort = 8080;
+  proxyPort = "8080";
 
   running = false;
   
@@ -60,11 +60,11 @@ export class ProxyHelperComponent implements OnInit {
       },
       (response) => {
         console.log(response)
-        this.running = response.running;
-        this.proxyIp = response.proxyIp;
-        this.proxyPort = response.proxyPort;
+        this.running = response.isRunning;
+        this.proxyIp = response.proxyIp || this.proxyIp;
+        this.proxyPort = response.proxyPort || this.proxyPort;
         
-        if (response.running) {
+        if (response.isRunning) {
           this.status = "Running";
           this.statusColor = "accent";
           this.toggleSuccess = false;
@@ -87,7 +87,7 @@ export class ProxyHelperComponent implements OnInit {
       {
         module: "ProxyHelper",
         action: "setRunningStatus",
-        running,
+        isRunning: running,
         proxyIp: this.proxyIp,
         proxyPort: this.proxyPort,
       },
@@ -136,7 +136,7 @@ export class ProxyHelperComponent implements OnInit {
                 module: "ProxyHelper",
                 action: "createProxyRules",
                 dIP: this.proxyIp,
-                dPort: this.proxyPort
+                dPort:  parseInt(this.proxyPort)
               },
               (response) => {
                 console.log(response)
@@ -181,7 +181,7 @@ export class ProxyHelperComponent implements OnInit {
           {
             module: "ProxyHelper",
             action: "restoreBackup",
-            file: "iptables_tmp"
+            filename: "iptables_tmp"
           },
           (response) => {
             console.log(response)
@@ -227,7 +227,7 @@ export class ProxyHelperComponent implements OnInit {
         } else {
           this.restoreMessage = "Failed to restore backup";
         }
-      }
+      },
     );
   }
 
