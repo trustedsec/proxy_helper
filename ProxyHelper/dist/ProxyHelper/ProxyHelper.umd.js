@@ -455,7 +455,7 @@
             var _this = this;
             this.API.request({
                 module: "ProxyHelper",
-                action: "hello_world",
+                action: "aboutInfo",
             }, function (response) {
                 _this.apiResponse = response;
             });
@@ -467,7 +467,7 @@
         ProxyHelperComponent = __decorate([
             core.Component({
                 selector: "lib-ProxyHelper",
-                template: "<mat-card>\n  <mat-card-title>Welcome to MyModule</mat-card-title>\n  <mat-card-content>\n    <button mat-flat-button color=\"accent\" (click)=\"doAPIAction()\">\n      Request to Module\n    </button>\n    <br />\n    <span>The API response was: {{apiResponse}}</span>\n    <br />\n  </mat-card-content>\n</mat-card>\n",
+                template: "<mat-card>\n  <mat-card-title>Welcome to ProxyHelper</mat-card-title>\n  <mat-card-content>\n    <button mat-flat-button color=\"accent\" (click)=\"doAPIAction()\">\n      Request to Module\n    </button>\n    <br />\n    <span>The API response was: {{apiResponse}}</span>\n    <br />\n  </mat-card-content>\n</mat-card>\n",
                 styles: [""]
             })
         ], ProxyHelperComponent);

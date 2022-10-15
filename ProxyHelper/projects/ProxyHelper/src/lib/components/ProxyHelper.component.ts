@@ -15,7 +15,7 @@ export class ProxyHelperComponent implements OnInit {
     this.API.request(
       {
         module: "ProxyHelper",
-        action: "hello_world",
+        action: "aboutInfo",
       },
       (response) => {
         this.apiResponse = response;

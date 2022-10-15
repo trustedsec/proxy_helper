@@ -6,9 +6,9 @@ from pineapple.modules import Module, Request
  
 module = Module('ProxyHelper', logging.DEBUG) 
  
-@module.handles_action('hello_world') 
-def hello_world(request: Request): 
-    return 'Hello World' 
+@module.handles_action('aboutInfo') 
+def aboutInfo(request: Request): 
+    return 'aboutInfoaaa' 
  
 if __name__ == '__main__': 
     module.start()
