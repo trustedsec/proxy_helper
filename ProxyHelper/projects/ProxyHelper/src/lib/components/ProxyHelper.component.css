@@ -1,0 +1,23 @@
+.mat-card {
+  margin-bottom: 24px;
+}
+
+.control-card,
+.settings-card {
+  max-width: 600px;
+}
+
+.card-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.control-button {
+  width: 120px;
+}
+
+.label {
+  margin-right: auto;
+}

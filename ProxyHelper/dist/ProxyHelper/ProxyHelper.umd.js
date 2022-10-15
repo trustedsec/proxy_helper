@@ -450,6 +450,16 @@
         function ProxyHelperComponent(API) {
             this.API = API;
             this.apiResponse = "Press the button above to get the response.";
+            this.title = "";
+            this.version = "";
+            this.statusColor = "warn";
+            this.status = "Stopped";
+            this.toggleSuccess = false;
+            this.toggleFailure = false;
+            this.error = "";
+            this.disabled = false;
+            this.proxyIp = "172.16.42.42";
+            this.proxyPort = 8080;
         }
         ProxyHelperComponent.prototype.doAPIAction = function () {
             var _this = this;
@@ -467,8 +477,8 @@
         ProxyHelperComponent = __decorate([
             core.Component({
                 selector: "lib-ProxyHelper",
-                template: "<mat-card>\n  <mat-card-title>Welcome to ProxyHelper</mat-card-title>\n  <mat-card-content>\n    <button mat-flat-button color=\"accent\" (click)=\"doAPIAction()\">\n      Request to Module\n    </button>\n    <br />\n    <span>The API response was: {{apiResponse}}</span>\n    <br />\n  </mat-card-content>\n</mat-card>\n",
-                styles: [""]
+                template: "<mat-grid-list cols=\"1\" class=\"mat-typography\">\n  <mat-card class=\"title-card\">\n    <mat-card-title>Title</mat-card-title>\n    <mat-card-content>\n      card content\n    </mat-card-content>\n  </mat-card>\n\n  <mat-card class=\"control-card\">\n    <mat-card-title>Controls</mat-card-title>\n    <mat-card-content class=\"control-card-content\">\n      <div class=\"card-row\">\n        <p class=\"label\">Proxy</p>\n        <button mat-raised-button class=\"control-button\" color={{statusColor}}>{{status}}</button>\n      </div>\n      <div class=\"card-row\">\n        <p class=\"label\">Manually Backup FW Rules</p>\n        <button mat-raised-button class=\"control-button\">Backup</button>\n      </div>\n    </mat-card-content>\n  </mat-card>\n\n  <mat-card class=\"settings-card\">\n    <mat-card-title>Proxy Settings</mat-card-title>\n    <mat-card-content>\n      <form>\n      <div class=\"card-row\">\n        <mat-form-field appearance=\"fill\">\n          <mat-label>Proxy IP</mat-label>\n          <input matInput placeholder=\"172.16.42.42\" value={{proxyIp}}>\n        </mat-form-field>\n      </div>\n      <div class=\"card-row\">\n        <mat-form-field appearance=\"fill\">\n          <mat-label>Proxy Port</mat-label>\n          <input matInput placeholder=\"8080\" value={{proxyPort}}>\n        </mat-form-field>\n      </div>\n      </form>\n    </mat-card-content>\n  </mat-card>\n\n  <mat-card>\n    <mat-card-title>Backups</mat-card-title>\n    <mat-card-content>\n      card content\n    </mat-card-content>\n  </mat-card>\n</mat-grid-list>",
+                styles: [".mat-card{margin-bottom:24px}.control-card,.settings-card{max-width:600px}.card-row{display:flex;flex-direction:row;align-items:center;margin-bottom:12px}.control-button{width:120px}.label{margin-right:auto}button.mat-raised-button span.mat-button-wrapper{cursor:pointer!important}"]
             })
         ], ProxyHelperComponent);
         return ProxyHelperComponent;

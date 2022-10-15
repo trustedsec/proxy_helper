@@ -1,11 +1,62 @@
-<mat-card>
-  <mat-card-title>Welcome to ProxyHelper</mat-card-title>
-  <mat-card-content>
-    <button mat-flat-button color="accent" (click)="doAPIAction()">
-      Request to Module
-    </button>
-    <br />
-    <span>The API response was: {{apiResponse}}</span>
-    <br />
-  </mat-card-content>
-</mat-card>
+<mat-grid-list cols="1" class="mat-typography">
+  <mat-card class="title-card">
+    <mat-card-title>Title</mat-card-title>
+    <mat-card-content>
+      card content
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="control-card">
+    <mat-card-title>Controls</mat-card-title>
+    <mat-card-content class="control-card-content">
+      <div class="card-row">
+        <p class="label">Proxy</p>
+        <button mat-raised-button class="control-button" color={{statusColor}}>{{status}}</button>
+      </div>
+      <div class="card-row">
+        <p class="label">Manually Backup FW Rules</p>
+        <button mat-raised-button class="control-button">Backup</button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="settings-card">
+    <mat-card-title>Proxy Settings</mat-card-title>
+    <mat-card-content>
+      <form>
+      <div class="card-row">
+        <mat-form-field appearance="fill">
+          <mat-label>Proxy IP</mat-label>
+          <input matInput placeholder="172.16.42.42" value={{proxyIp}}>
+        </mat-form-field>
+      </div>
+      <div class="card-row">
+        <mat-form-field appearance="fill">
+          <mat-label>Proxy Port</mat-label>
+          <input matInput placeholder="8080" value={{proxyPort}}>
+        </mat-form-field>
+      </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-title>Backups</mat-card-title>
+    <mat-card-content>
+      <table>
+        <ng-container cdkColumnDef="file">
+          <th cdk-header-cell *cdkHeaderCellDef>File</th>
+          <td cdk-cell *cdkCellDef="let element"> {{element.file}} </td>
+        </ng-container>
+        <ng-container cdkColumnDef="action">
+          <th cdk-header-cell *cdkHeaderCellDef>Action</th>
+          <td cdk-cell *cdkCellDef>
+            <button mat-raised-button class="control-button" color={{statusColor}}>{{status}}</button>
+            <button mat-raised-button class="control-button" color={{statusColor}}>{{status}}</button>
+            <button mat-raised-button class="control-button" color={{statusColor}}>{{status}}</button>
+          </td>
+        </ng-container>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</mat-grid-list>
