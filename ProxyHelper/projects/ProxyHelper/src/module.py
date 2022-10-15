@@ -1,7 +1,12 @@
 #!/usr/bin/env python3 
  
+from fileinput import filename
 import logging 
- 
+import os
+import json
+import datetime
+import re
+
 from pineapple.modules import Module, Request 
  
 module = Module("ProxyHelper", logging.DEBUG) 
@@ -56,6 +61,91 @@ def backupRules(request: Request):
 
     return json.dumps({"success": True, "call": "backupRules()", "content": "iptables-save", "filename": filename})
 
+@module.handles_action("viewBackup")
+def viewBackup(request: Request):
+    filename = request.filename
+    if filename is None or filename == "":
+        return json.dumps({"success": False, "call": "viewBackup()", "error": "No filename specified"})
+
+    filePath = "/pineapple/modules/ProxyHelper/backups/" + filename
+
+    if not os.path.isfile(filePath):
+        return json.dumps({"success": False, "call": "viewBackup()", "error": "No file found"})
+
+    if not os.path.getsize(filePath) == 0:
+        return json.dumps({"success": False, "call": "viewBackup()", "error": "File is empty"})
+    
+    with open(filePath) as f:
+        return json.dumps({"success": True, "call": "viewBackup()", "file": filename, "output": f.read()})
+
+@module.handles_action("restoreBackup")
+def restoreBackup(request: Request):
+    filename = request.filename
+    if filename is None or filename == "":
+        return json.dumps({"success": False, "call": "restoreBackup()", "error": "No filename specified"})
+
+    filePath = "/pineapple/modules/ProxyHelper/backups/" + filename
+
+    if not os.path.isfile(filePath):
+        return json.dumps({"success": False, "call": "restoreBackup()", "error": "No file found"})
+
+    if not os.path.getsize(filePath) == 0:
+        return json.dumps({"success": False, "call": "restoreBackup()", "error": "File is empty"})
+    
+    with open(filePath) as f:
+        os.system("iptables-restore < " + filePath)
+        return json.dumps({"success": True, "call": "restoreBackup()", "file": filename, "output": f.read()})
+
+@module.handles_action("getBackups")
+def getBackups():
+    baseDir = "/pineapple/modules/ProxyHelper/backups"
+    backupFiles = [f for f in os.listdir() if os.path.isfile(os.path.join(baseDir, f))]
+    backups = []
+
+    for backup in backupFiles:
+        if not os.path.isfile(backup) and not os.path.getsize(backup) == 0 and backup != tmpFileName:
+            with open(backup, "r") as f:
+                backups.append(f)
+    return json.dumps({"success": True, "call": "getBackups()", "backups": backups})
+
+@module.handles_action("deleteBackup")
+def deleteBackup(request: Request):
+    filePath = "/pineapple/modules/ProxyHelper/backups/" + request.filename
+
+    if not os.path.isfile(filePath):
+        return json.dumps({"success": False, "call": "restoreBackup()", "error": "No file found"})
+
+    os.system("rm -rf " + filename)
+    return json.dumps({"success": True, "call": "deleteBackup()", "file": filename})
+
+@module.handles_action("setRunningStatus")
+def setRunningStatus(request: Request):
+    status = {
+        "isRunning": request.isRunning,
+        "proxyIp": request.proxyIp,
+        "proxyPort": request.proxyPort,
+    }
+
+    jsonStatus = json.dumps(status)
+    with open(statusFile, "w+") as f:
+        f.write(jsonStatus)
+        f.close()
+    
+    return json.dumps({"success": True, "call": "setRunningStatus()", "json": jsonStatus})
+
+@module.handles_action("getRunningStatus")
+def getRunningStatus(request: Request):
+    isRunning = False
+    proxyIp = ""
+    proxyPort = ""
+
+    if os.path.isfile(statusFile):
+        f = open(statusFile, "r")
+        status = json.load(f.read())
+        isRunning = status["isRunning"]
+        proxyIp = status["proxyIp"]
+        proxyPort= status["proxyPort"]
+    json.dumps({"success": True, "call": "getRunningStatus()", "isRunning": isRunning, "proxyIp": proxyIp, "proxyPort": proxyPort})
  
 if __name__ == "__main__": 
     module.start()
